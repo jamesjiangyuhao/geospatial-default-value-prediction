@@ -14,7 +14,7 @@ The workflow is designed around a real decision-support pattern: maximize useful
 
 ## Synthetic Data Design
 
-The data is generated from random coordinates inside a realistic U.S. regional bounding box. It includes synthetic observation periods, market areas, record sources, property types, distance-to-service-center features, urban density scores, historical record counts, and quality flags.
+The data is generated from random coordinates inside a Houston, Texas metro-style bounding box. It includes synthetic observation periods, market areas, record sources, property types, distance-to-service-center features, urban density scores, historical record counts, and quality flags.
 
 Spatial patterns are intentionally built in:
 

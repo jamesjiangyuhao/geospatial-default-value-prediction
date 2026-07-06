@@ -126,7 +126,44 @@ def create_static_hex_confidence_map(prediction_df: pd.DataFrame, output_path: s
             return "#65a30d"
         return "#7c2d12"
 
+    x_min = sample["longitude_center"].min() - 0.12
+    x_max = sample["longitude_center"].max() + 0.12
+    y_min = sample["latitude_center"].min() - 0.10
+    y_max = sample["latitude_center"].max() + 0.10
+
     fig, ax = plt.subplots(figsize=(12, 7.6))
+    ax.set_facecolor("#eef2e6")
+
+    # Lightweight map-style context for the Houston sample area. The basemap is
+    # intentionally stylized so the project remains dependency-light and fully reproducible.
+    water_polygons = [
+        [(-95.08, 29.36), (-94.83, 29.36), (-94.83, 29.88), (-94.94, 29.83), (-95.02, 29.70)],
+        [(-95.22, 29.48), (-95.05, 29.43), (-94.95, 29.56), (-95.13, 29.62)],
+    ]
+    for coords in water_polygons:
+        ax.add_patch(Polygon(coords, closed=True, facecolor="#bfdbfe", edgecolor="#93c5fd", linewidth=0.8, alpha=0.75, zorder=0))
+
+    roads = [
+        ([-95.82, -95.02], [29.78, 29.77], "I-10"),
+        ([-95.55, -95.31, -95.18], [30.18, 29.78, 29.42], "I-45"),
+        ([-95.72, -95.37, -95.08], [29.55, 29.74, 30.02], "I-69"),
+        ([-95.55, -95.18, -95.10, -95.34, -95.62, -95.66, -95.55], [29.92, 29.88, 29.63, 29.47, 29.57, 29.78, 29.92], "Beltway 8"),
+    ]
+    for xs, ys, label in roads:
+        ax.plot(xs, ys, color="#d1d5db", linewidth=4.2, alpha=0.75, solid_capstyle="round", zorder=1)
+        ax.plot(xs, ys, color="#ffffff", linewidth=1.4, alpha=0.9, solid_capstyle="round", zorder=2)
+        ax.text(xs[len(xs) // 2], ys[len(ys) // 2] + 0.012, label, fontsize=8, color="#6b7280", ha="center", zorder=3, clip_on=True)
+
+    city_labels = [
+        ("Houston", -95.3698, 29.7604, 11),
+        ("Sugar Land", -95.6349, 29.6197, 8),
+        ("The Woodlands", -95.4613, 30.1658, 8),
+        ("Baytown", -94.9774, 29.7355, 8),
+    ]
+    for label, lon, lat, size in city_labels:
+        if x_min <= lon <= x_max and y_min <= lat <= y_max:
+            ax.text(lon, lat, label, fontsize=size, color="#374151", weight="bold", ha="center", zorder=3, clip_on=True)
+
     for _, row in sample.iterrows():
         polygon = Polygon(
             _cell_boundary(row["h3_index"]),
@@ -134,23 +171,26 @@ def create_static_hex_confidence_map(prediction_df: pd.DataFrame, output_path: s
             facecolor=color_for(row),
             edgecolor="white",
             linewidth=0.7,
-            alpha=0.92,
+            alpha=0.90,
+            zorder=4,
         )
         ax.add_patch(polygon)
 
-    ax.set_xlim(sample["longitude_center"].min() - 0.12, sample["longitude_center"].max() + 0.12)
-    ax.set_ylim(sample["latitude_center"].min() - 0.10, sample["latitude_center"].max() + 0.10)
+    ax.set_xlim(x_min, x_max)
+    ax.set_ylim(y_min, y_max)
     ax.set_aspect("equal", adjustable="box")
-    ax.set_title(
-        "Hex Confidence Map\nGreen = high-confidence lower class; red = low-confidence review",
-        loc="left",
-        fontsize=15,
-        weight="bold",
-        pad=14,
+    ax.set_title("Houston Hex Confidence Map", loc="left", fontsize=17, weight="bold", pad=18)
+    ax.text(
+        0,
+        1.01,
+        "Synthetic H3 grid overlay: green = high-confidence lower class, red = low-confidence review",
+        transform=ax.transAxes,
+        fontsize=10,
+        color="#4b5563",
     )
-    ax.set_xlabel("Longitude")
-    ax.set_ylabel("Latitude")
-    ax.grid(True, color="#e5e7eb", linewidth=0.7)
+    ax.set_xlabel("")
+    ax.set_ylabel("")
+    ax.grid(True, color="#ffffff", linewidth=0.7, alpha=0.75, zorder=0)
 
     legend_items = [
         Line2D([0], [0], marker="s", color="w", label="High confidence, lower default class", markerfacecolor="#15803d", markersize=11),
