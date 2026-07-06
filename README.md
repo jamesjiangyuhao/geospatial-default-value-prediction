@@ -91,6 +91,7 @@ geospatial-default-value-prediction/
 └── outputs/
     ├── prediction_map.html
     ├── confidence_map.html
+    ├── hex_confidence_grid_map.png
     ├── feature_importance.png
     ├── confusion_matrix.png
     └── coverage_confidence_curve.png
@@ -137,7 +138,7 @@ This project is built entirely with synthetic data and generic business logic. I
 ## Future Enhancements
 
 - Add calibration analysis for predicted probabilities.
-- Add polygon rendering for full H3 hex boundaries.
+- Add richer basemap layers and hover annotations for H3 polygon review.
 - Add drift monitoring across observation periods.
 - Add threshold optimization based on business cost assumptions.
 - Add unit tests for H3 assignment and feature engineering.
